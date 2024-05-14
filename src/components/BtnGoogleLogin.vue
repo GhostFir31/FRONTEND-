@@ -8,7 +8,7 @@ import { ref, onMounted } from 'vue'
 const googleLoginBtn = ref(null);
  onMounted(() => {
     window.google.accounts.id.initialize({
-        client_id: process.env.VUE_APP_ID_CLIENT_GOOGLE,
+        client_id: "385452778302-u5s6on3cari3h1uq1hfjjkqcmrgadki5.apps.googleusercontent.com",
         callback: onSuccess,
         context: 'signin',
         auto_select: false,
