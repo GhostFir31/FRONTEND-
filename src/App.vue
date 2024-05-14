@@ -7,6 +7,7 @@
 </template>
 
 <script>
+
 import BtnGoogleLogin from '@/components/BtnGoogleLogin.vue';
 
 export default {
@@ -17,5 +18,7 @@ export default {
 </script>
 
 <style scoped>
-/* Estilos adicionales si es necesario */
+  .v-card {
+    border-radius: 10px;
+  }
 </style>
