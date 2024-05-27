@@ -32,7 +32,7 @@
                   </v-col>
                   <v-col cols="12" md="4" sm="6">
                     <v-text-field
-                      v-model="editedUbicacion.descripcion"
+                      v-model="editedUbicacion.descripcionUbicacion"
                       label="Descripción"
                     ></v-text-field>
                   </v-col>
@@ -93,13 +93,15 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   data: () => ({
     ubicacionDialog: false,
     ubicacionDialogDelete: false,
     ubicacionHeaders: [
       { title: 'ID Ubicación', align: 'start', sortable: false, key: 'idUbicacion' },
-      { title: 'Descripción', key: 'descripcion' },
+      { title: 'Descripción', key: 'descripcionUbicacion' },
       { title: 'Activos Asociados', key: 'activosAsociados' },
       { title: 'Acciones', key: 'actions', sortable: false },
     ],
@@ -107,12 +109,12 @@ export default {
     editedUbicacionIndex: -1,
     editedUbicacion: {
       idUbicacion: '',
-      descripcion: '',
+      descripcionUbicacion: '',
       activosAsociados: '',
     },
     defaultUbicacion: {
       idUbicacion: '',
-      descripcion: '',
+      descripcionUbicacion: '',
       activosAsociados: '',
     },
   }),
@@ -137,24 +139,35 @@ export default {
   },
 
   methods: {
-    initializeUbicaciones() {
-      this.ubicaciones = [
-        {
-          idUbicacion: '20',
-          descripcion: 'Mexico',
-          activosAsociados: 'computadora,mesa',
-        },
-        {
-          idUbicacion: '21',
-          descripcion: 'USA',
-          activosAsociados: 'celular',
-        },
-        {
-          idUbicacion: '22',
-          descripcion: 'Canada',
-          activosAsociados: 'none',
-        },
-      ];
+    async initializeUbicaciones() {
+      try {
+        const response = await axios.get('http://localhost:3001/ubicaciones');
+        this.ubicaciones = response.data;
+      } catch (error) {
+        console.error('Error al obtener ubicaciones:', error);
+      }
+    },
+
+    async saveUbicacion() {
+      if (this.editedUbicacionIndex > -1) {
+        // Update existing ubicacion
+        try {
+          await axios.put(`http://localhost:3001/ubicaciones/${this.editedUbicacion.idUbicacion}`, this.editedUbicacion);
+          this.closeUbicacionDialog();
+          this.initializeUbicaciones(); // Refresh data after update
+        } catch (error) {
+          console.error('Error al actualizar ubicación:', error);
+        }
+      } else {
+        // Add new ubicacion
+        try {
+          await axios.post('http://localhost:3001/ubicaciones', this.editedUbicacion);
+          this.initializeUbicaciones(); // Refresh data after addition
+          this.closeUbicacionDialog();
+        } catch (error) {
+          console.error('Error al agregar ubicación:', error);
+        }
+      }
     },
 
     editUbicacion(item) {
@@ -169,9 +182,14 @@ export default {
       this.ubicacionDialogDelete = true;
     },
 
-    deleteUbicacionConfirm() {
-      this.ubicaciones.splice(this.editedUbicacionIndex, 1);
-      this.closeUbicacionDeleteDialog();
+    async deleteUbicacionConfirm() {
+      try {
+        await axios.delete(`http://localhost:3001/ubicaciones/${this.editedUbicacion.idUbicacion}`);
+        this.initializeUbicaciones(); // Refresh data after deletion
+        this.closeUbicacionDeleteDialog();
+      } catch (error) {
+        console.error('Error al eliminar ubicación:', error);
+      }
     },
 
     closeUbicacionDialog() {
@@ -188,15 +206,6 @@ export default {
         this.editedUbicacion = Object.assign({}, this.defaultUbicacion);
         this.editedUbicacionIndex = -1;
       });
-    },
-
-    saveUbicacion() {
-      if (this.editedUbicacionIndex > -1) {
-        Object.assign(this.ubicaciones[this.editedUbicacionIndex], this.editedUbicacion);
-      } else {
-        this.ubicaciones.push(this.editedUbicacion);
-      }
-      this.closeUbicacionDialog();
     },
   },
 };

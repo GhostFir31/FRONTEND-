@@ -5,6 +5,7 @@ import Components from 'unplugin-vue-components/vite'
 import VueRouter from 'unplugin-vue-router/vite'
 import Layouts from 'vite-plugin-vue-layouts'
 import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
+
 // Utilities
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
@@ -50,6 +51,12 @@ export default defineConfig({
     ],
   },
   server: {
-    port: 3000,
+    port: 3000, 
+    /*
+    https: {
+      key: fs.readFileSync('private.key'), // Asegúrate de que estas rutas sean correctas
+      cert: fs.readFileSync('certificate.crt'), // Asegúrate de que estas rutas sean correctas
+      passphrase: 'password'
+    }*/
   },
 })

@@ -32,13 +32,13 @@
                   </v-col>
                   <v-col cols="12" md="4" sm="6">
                     <v-text-field
-                      v-model="editedResponsable.numeroEmpleado"
+                      v-model="editedResponsable.numEmpleado"
                       label="Número de Empleado"
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" md="4" sm="6">
                     <v-text-field
-                      v-model="editedResponsable.nombre"
+                      v-model="editedResponsable.nombreEmpleado"
                       label="Nombre"
                     ></v-text-field>
                   </v-col>
@@ -99,14 +99,16 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   data: () => ({
     responsableDialog: false,
     responsableDialogDelete: false,
     responsableHeaders: [
       { title: 'ID Responsable', align: 'start', sortable: false, key: 'idResponsable' },
-      { title: 'Número de Empleado', key: 'numeroEmpleado' },
-      { title: 'Nombre', key: 'nombre' },
+      { title: 'Número de Empleado', key: 'numEmpleado' },
+      { title: 'Nombre', key: 'nombreEmpleado' },
       { title: 'Activos en Custodia', key: 'activosCustodia' },
       { title: 'Acciones', key: 'actions', sortable: false },
     ],
@@ -114,14 +116,14 @@ export default {
     editedResponsableIndex: -1,
     editedResponsable: {
       idResponsable: '',
-      numeroEmpleado: '',
-      nombre: '',
+      numEmpleado: '',
+      nombreEmpleado: '',
       activosCustodia: '',
     },
     defaultResponsable: {
       idResponsable: '',
-      numeroEmpleado: '',
-      nombre: '',
+      numEmpleado: '',
+      nombreEmpleado: '',
       activosCustodia: '',
     },
   }),
@@ -146,44 +148,57 @@ export default {
   },
 
   methods: {
-    initializeResponsables() {
-      this.responsables = [
-        {
-          idResponsable: '00001',
-          numeroEmpleado: '1',
-          nombre: 'Juan',
-          activosCustodia: 'computadora',
-        },
-        {
-          idResponsable: '00002',
-          numeroEmpleado: '2',
-          nombre: 'Luis',
-          activosCustodia: 'mesa',
-        },
-        {
-          idResponsable: '00003',
-          numeroEmpleado: '3',
-          nombre: 'Oscar',
-          activosCustodia: 'celular',
-        },
-      ];
+    async initializeResponsables() {
+      try {
+        const response = await axios.get('http://localhost:3001/responsables');
+        this.responsables = response.data;
+      } catch (error) {
+        console.error('Error al obtener responsables:', error);
+      }
     },
-
+    async saveResponsable() {
+      if (this.editedResponsableIndex > -1) {
+      // Update existing responsable
+      try {
+        await axios.put(`http://localhost:3001/responsables/${this.editedResponsable.idResponsable}`, this.editedResponsable);
+        this.closeResponsableDialog();
+        this.initializeResponsables(); // Refresh data after update
+      } catch (error) {
+        console.error('Error al actualizar responsable:', error);
+      }
+      } else {
+      // Add new responsable
+      try {
+        await axios.post('http://localhost:3001/responsables', this.editedResponsable);
+        this.initializeResponsables(); // Refresh data after addition
+        this.closeResponsableDialog();
+      } catch (error) {
+        console.error('Error al agregar responsable:', error);
+      }
+      }
+    },
     editResponsable(item) {
-      this.editedResponsableIndex = this.responsables.indexOf(item);
-      this.editedResponsable = Object.assign({}, item);
-      this.responsableDialog = true;
-    },
+    this.editedResponsableIndex = this.responsables.indexOf(item);
+    this.editedResponsable = Object.assign({}, item);
+    this.responsableDialog = true;
+  },
 
-    deleteResponsable(item) {
+    async deleteResponsable(item) {
       this.editedResponsableIndex = this.responsables.indexOf(item);
       this.editedResponsable = Object.assign({}, item);
       this.responsableDialogDelete = true;
     },
 
-    deleteResponsableConfirm() {
-      this.responsables.splice(this.editedResponsableIndex, 1);
-      this.closeResponsableDeleteDialog();
+    async deleteResponsableConfirm() {
+      try {
+        await axios.delete('http://localhost:3001/responsables', {
+          data: { idResponsable: this.editedResponsable.idResponsable },
+        });
+        this.responsables.splice(this.editedResponsableIndex, 1);
+        this.closeResponsableDeleteDialog();
+      } catch (error) {
+        console.error('Error al eliminar responsable:', error);
+      }
     },
 
     closeResponsableDialog() {
@@ -200,15 +215,6 @@ export default {
         this.editedResponsable = Object.assign({}, this.defaultResponsable);
         this.editedResponsableIndex = -1;
       });
-    },
-
-    saveResponsable() {
-      if (this.editedResponsableIndex > -1) {
-        Object.assign(this.responsables[this.editedResponsableIndex], this.editedResponsable);
-      } else {
-        this.responsables.push(this.editedResponsable);
-      }
-      this.closeResponsableDialog();
     },
   },
 };

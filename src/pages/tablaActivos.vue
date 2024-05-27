@@ -3,7 +3,7 @@
   <v-data-table
     :headers="headers"
     :items="activos"
-    :sort-by="[{ key: 'id', order: 'asc' }]"
+    :sort-by="[{ key: 'idActivo', order: 'asc' }]"
   >
     <template v-slot:top>
       <v-toolbar flat>
@@ -20,37 +20,36 @@
             <v-card-title>
               <span class="text-h5">{{ formTitle }}</span>
             </v-card-title>
-
             <v-card-text>
               <v-container>
                 <v-row>
                   <v-col cols="12" md="4" sm="6">
                     <v-text-field
-                      v-model="editedItem.id"
+                      v-model="editedItem.idActivo"
                       label="ID Activo"
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" md="4" sm="6">
                     <v-text-field
-                      v-model="editedItem.numeroSerie"
+                      v-model="editedItem.numSerie"
                       label="Numero de Serie"
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" md="4" sm="6">
                     <v-text-field
-                      v-model="editedItem.numeroInventario"
+                      v-model="editedItem.numInventario"
                       label="Numero de Inventario"
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" md="4" sm="6">
                     <v-text-field
-                      v-model="editedItem.tipo"
+                      v-model="editedItem.tipoActivo"
                       label="Tipo de Activo"
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" md="4" sm="6">
                     <v-text-field
-                      v-model="editedItem.descripcion"
+                      v-model="editedItem.descripcionActivo"
                       label="Descripcion del Activo"
                     ></v-text-field>
                   </v-col>
@@ -69,7 +68,6 @@
                 </v-row>
               </v-container>
             </v-card-text>
-
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="blue-darken-1" variant="text" @click="close">
@@ -117,53 +115,55 @@
 </template>
 
 <script>
-export default {
-  data: () => ({
-    dialog: false,
-    dialogDelete: false,
-    headers: [
-      {
-        title: 'ID Activo',
-        align: 'start',
-        sortable: false,
-        key: 'id',
-      },
-      { title: 'Numero de Serie', key: 'numeroSerie' },
-      { title: 'Numero de Inventario', key: 'numeroInventario' },
-      { title: 'Tipo de Activo', key: 'tipo' },
-      { title: 'Descripcion', key: 'descripcion' },
-      { title: 'Ubicación', key: 'ubicacion' },
-      { title: 'Responsable', key: 'responsable' },
-      { title: 'Acciones', key: 'actions', sortable: false },
-    ],
-    activos: [],
-    editedIndex: -1,
-    editedItem: {
-      id: '',
-      numeroSerie: '',
-      numeroInventario: '',
-      tipo: '',
-      descripcion: '',
-      ubicacion: '',
-      responsable: '',
-    },
-    defaultItem: {
-      id: '',
-      numeroSerie: '',
-      numeroInventario: '',
-      tipo: '',
-      descripcion: '',
-      ubicacion: '',
-      responsable: '',
-    },
-  }),
+import axios from 'axios';
 
+export default {
+  data() {
+    return {
+      dialog: false,
+      dialogDelete: false,
+      headers: [
+        {
+          title: 'ID Activo',
+          align: 'start',
+          sortable: false,
+          key: 'idActivo',
+        },
+        { title: 'Numero de Serie', key: 'numSerie' },
+        { title: 'Numero de Inventario', key: 'numInventario' },
+        { title: 'Tipo de Activo', key: 'tipoActivo' },
+        { title: 'Descripcion', key: 'descripcionActivo' },
+        { title: 'Ubicación', key: 'ubicacion' },
+        { title: 'Responsable', key: 'responsable' },
+        { title: 'Acciones', key: 'actions', sortable: false },
+      ],
+      activos: [],
+      editedIndex: -1,
+      editedItem: {
+        idActivo: '',
+        numSerie: '',
+        numInventario: '',
+        tipoActivo: '',
+        descripcionActivo: '',
+        ubicacion: '',
+        responsable: '',
+      },
+      defaultItem: {
+        idActivo: '',
+        numSerie: '',
+        numInventario: '',
+        tipoActivo: '',
+        descripcionActivo: '',
+        ubicacion: '',
+        responsable: '',
+      },
+    };
+  },
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? 'Nuevo Activo' : 'Editar Activo';
     },
   },
-
   watch: {
     dialog(val) {
       val || this.close();
@@ -172,64 +172,62 @@ export default {
       val || this.closeDelete();
     },
   },
-
   created() {
     this.initialize();
   },
-
   methods: {
     initialize() {
-      this.activos = [
-        {
-          id: '1111',
-          numeroSerie: '12345',
-          numeroInventario: '0',
-          tipo: 'computadora',
-          descripcion: 'Computadora de escritorio',
-          ubicacion: 'Mexico',
-          responsable: 'Juan',
-          imagen: 'computadora.jpg',
-        },
-        {
-          id: '1112',
-          numeroSerie: '678910',
-          numeroInventario: '1',
-          tipo: 'mobiliario',
-          descripcion: 'Mesa',
-          ubicacion: 'Mexico',
-          responsable: 'Luis',
-          imagen: 'mesa.jpg',
-        },
-        {
-          id: '1113',
-          numeroSerie: '101112',
-          numeroInventario: '3',
-          tipo: 'equipo de electronica',
-          descripcion: 'celular',
-          ubicacion: 'USA',
-          responsable: 'Oscar',
-          imagen: 'celular.jpg',
-        },
-      ];
+      this.obtenerActivos();
     },
-
+    obtenerActivos() {
+      axios.get('http://localhost:3001/activos')
+        .then(response => {
+          this.activos = response.data;
+        })
+        .catch(error => {
+          console.error('Error al obtener activos:', error);
+        });
+    },
+    async save() {
+      if (this.editedIndex > -1) {
+        // Update existing activo
+        try {
+          await axios.put(`http://localhost:3001/activos/${this.editedItem.idActivo}`, this.editedItem);
+          this.close();
+          this.initialize(); // Refresh data after update
+        } catch (error) {
+          console.error('Error al actualizar activo:', error);
+        }
+      } else {
+        // Add new activo
+        try {
+          await axios.post('http://localhost:3001/activos', this.editedItem);
+          this.initialize(); // Refresh data after addition
+          this.close();
+        } catch (error) {
+          console.error('Error al agregar activo:', error);
+        }
+      }
+    },
     editItem(item) {
       this.editedIndex = this.activos.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
     },
-
     deleteItem(item) {
       this.editedIndex = this.activos.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialogDelete = true;
     },
-
-    deleteItemConfirm() {
-      this.activos.splice(this.editedIndex, 1);
-      this.closeDelete();
+    async deleteItemConfirm() {
+      try {
+        await axios.delete(`http://localhost:3001/activos/${this.editedItem.idActivo}`);
+        this.initialize(); // Refresh data after deletion
+        this.closeDelete();
+      } catch (error) {
+        console.error('Error al eliminar activo:', error);
+      }
     },
-
     close() {
       this.dialog = false;
       this.$nextTick(() => {
@@ -237,22 +235,12 @@ export default {
         this.editedIndex = -1;
       });
     },
-
     closeDelete() {
       this.dialogDelete = false;
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
       });
-    },
-
-    save() {
-      if (this.editedIndex > -1) {
-        Object.assign(this.activos[this.editedIndex], this.editedItem);
-      } else {
-        this.activos.push(this.editedItem);
-      }
-      this.close();
     },
   },
 };
