@@ -158,19 +158,19 @@ export default {
     },
     async saveResponsable() {
       if (this.editedResponsableIndex > -1) {
-      // Update existing responsable
+      
       try {
         await axios.put(`http://localhost:3001/responsables/${this.editedResponsable.idResponsable}`, this.editedResponsable);
         this.closeResponsableDialog();
-        this.initializeResponsables(); // Refresh data after update
+        this.initializeResponsables(); 
       } catch (error) {
         console.error('Error al actualizar responsable:', error);
       }
       } else {
-      // Add new responsable
+      
       try {
         await axios.post('http://localhost:3001/responsables', this.editedResponsable);
-        this.initializeResponsables(); // Refresh data after addition
+        this.initializeResponsables(); 
         this.closeResponsableDialog();
       } catch (error) {
         console.error('Error al agregar responsable:', error);

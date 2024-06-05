@@ -194,15 +194,15 @@ export default {
         try {
           await axios.put(`http://localhost:3001/activos/${this.editedItem.idActivo}`, this.editedItem);
           this.close();
-          this.initialize(); // Refresh data after update
+          this.initialize(); 
         } catch (error) {
           console.error('Error al actualizar activo:', error);
         }
       } else {
-        // Add new activo
+       
         try {
           await axios.post('http://localhost:3001/activos', this.editedItem);
-          this.initialize(); // Refresh data after addition
+          this.initialize(); 
           this.close();
         } catch (error) {
           console.error('Error al agregar activo:', error);
@@ -222,7 +222,7 @@ export default {
     async deleteItemConfirm() {
       try {
         await axios.delete(`http://localhost:3001/activos/${this.editedItem.idActivo}`);
-        this.initialize(); // Refresh data after deletion
+        this.initialize(); 
         this.closeDelete();
       } catch (error) {
         console.error('Error al eliminar activo:', error);

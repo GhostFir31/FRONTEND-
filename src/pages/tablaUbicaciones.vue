@@ -150,11 +150,11 @@ export default {
 
     async saveUbicacion() {
       if (this.editedUbicacionIndex > -1) {
-        // Update existing ubicacion
+        
         try {
           await axios.put(`http://localhost:3001/ubicaciones/${this.editedUbicacion.idUbicacion}`, this.editedUbicacion);
           this.closeUbicacionDialog();
-          this.initializeUbicaciones(); // Refresh data after update
+          this.initializeUbicaciones(); 
         } catch (error) {
           console.error('Error al actualizar ubicación:', error);
         }
@@ -162,7 +162,7 @@ export default {
         // Add new ubicacion
         try {
           await axios.post('http://localhost:3001/ubicaciones', this.editedUbicacion);
-          this.initializeUbicaciones(); // Refresh data after addition
+          this.initializeUbicaciones(); 
           this.closeUbicacionDialog();
         } catch (error) {
           console.error('Error al agregar ubicación:', error);
@@ -185,7 +185,7 @@ export default {
     async deleteUbicacionConfirm() {
       try {
         await axios.delete(`http://localhost:3001/ubicaciones/${this.editedUbicacion.idUbicacion}`);
-        this.initializeUbicaciones(); // Refresh data after deletion
+        this.initializeUbicaciones(); 
         this.closeUbicacionDeleteDialog();
       } catch (error) {
         console.error('Error al eliminar ubicación:', error);
